@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: redis-practice
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
