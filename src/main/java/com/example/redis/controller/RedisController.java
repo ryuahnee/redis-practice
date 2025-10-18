@@ -1,30 +1,25 @@
 package com.example.redis.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
+import java.util.concurrent.TimeUnit;
+
 @RequestMapping("/api/redis")
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class RedisController {
 
     private final RedisTemplate<String, Object> redisTemplate;
 
-
-    /*
-        String: opsForValue() → 일반적인 Key-Value
-        List: opsForList() → 리스트 자료구조
-        Set: opsForSet() → 집합 자료구조
-        Hash: opsForHash() → 해시 자료구조
-        Sorted Set: opsForZSet() → 정렬된 집합
-    */
-
     /**
      * Redis에 데이터 저장
      * POST /api/redis?key=name&value=홍길동
-     *
      */
     @PostMapping
     public ResponseEntity<String> redisSave(@RequestParam String key, @RequestParam String value){
@@ -61,4 +56,35 @@ public class RedisController {
         return ResponseEntity.ok("삭제 완료 : "+ key);
     }
 
+    /**
+     * Redis에 데이터 저장 (만료시간 설정)
+     * POST /api/redis/expire?key=session&value=user123&seconds=60
+     */
+    @PostMapping("/expire")
+    public ResponseEntity<String> setValueWithExpire(@RequestParam String key,
+                                                     @RequestParam String value,
+                                                     @RequestParam Long seconds) {
+
+        redisTemplate.opsForValue().set(key,value, Duration.ofSeconds(seconds));
+        log.info("key={},value={},seconds={}",key,value,seconds);
+        return ResponseEntity.ok("저장 완료: " + key + " = " + value + " (저장만료시간: " + seconds + ")");
+    }
+
+
+    /**
+     * Redis 키의 남은 만료시간 조회
+     * GET /api/redis/ttl?key=session
+     */
+    @GetMapping("/ttl")
+    public ResponseEntity<String> getValueWithExpire(@RequestParam String key){
+        Long ttl = redisTemplate.getExpire(key, TimeUnit.SECONDS);
+
+        String response = "";
+        if (ttl == -2) {
+            response = "키가 존재하지 않음";
+        } else if (ttl == -1) {
+            response = "만료시간이 설정되지 않음 (영구 보관)";
+        }
+        return ResponseEntity.ok(key + " : " + ((ttl > 0) ? ttl : response));
+    }
 }
