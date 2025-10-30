@@ -1,0 +1,30 @@
+### 데이터 저장
+POST http://localhost:9090/api/redis?key=name&value=홍길동
+
+### 데이터 조회
+GET http://localhost:9090/api/redis?key=session
+
+### 데이터 삭제
+DELETE http://localhost:9090/api/redis?key=session
+
+### 데이터 저장- TTL설정
+POST http://localhost:9090/api/redis/expire?key=session&value=user123&seconds=60
+
+### TTL설정 조회
+GET http://localhost:9090/api/redis/ttl?key=session
+
+###RedisHashController###
+### 데이터 저장
+POST http://localhost:9090/api/redis/hash?key=user:1001&field=name&value=홍길동
+
+### 데이터 조회
+GET http://localhost:9090/api/redis/hash/field?key=user:1001&field=name
+
+### Hash의 모든 필드 조회
+GET http://localhost:9090/api/redis/hash?key=user:1001
+
+### Hash의 특정 필드 삭제
+DELETE http://localhost:9090/api/redis/hash/field?key=user:1001&field=name
+
+### Hash 전체 삭제
+DELETE http://localhost:9090/api/redis/hash?key=user:1001
