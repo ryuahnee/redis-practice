@@ -28,3 +28,4 @@ DELETE http://localhost:9090/api/redis/hash/field?key=user:1001&field=name
 
 ### Hash 전체 삭제
 DELETE http://localhost:9090/api/redis/hash?key=user:1001
+
